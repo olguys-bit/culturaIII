@@ -36,8 +36,9 @@
             font-size: 1.2rem; font-weight: bold; cursor: pointer;
             background: #ffffff; color: var(--primary); 
             border: 2px solid var(--primary); border-radius: 8px;
-            text-decoration: none;
-            -webkit-appearance: none;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .nav-btn:active {
@@ -47,11 +48,12 @@
 
         .back-btn {
             background: #ddd; border: none; padding: 10px 20px;
-            margin-top: 20px; border-radius: 5px; font-weight: bold;
+            margin-top: 20px; border-radius: 5px; font-weight: bold; cursor: pointer;
         }
 
+        /* Control de visibilidad estricto */
         .section { display: none; width: 100%; }
-        .active-section { display: block !important; }
+        .section.active { display: block !important; }
 
         .timeline-spot {
             border: 2px dashed var(--primary); border-radius: 8px;
@@ -62,7 +64,7 @@
         .def-card {
             background: var(--parchment); border: 1px solid #d4a373;
             padding: 12px; margin: 5px; border-radius: 6px; font-size: 0.9rem;
-            cursor: pointer;
+            cursor: pointer; color: black;
         }
         
         .correct { background: var(--success) !important; color: white; }
@@ -82,32 +84,32 @@
     <header><h1>Cultura de los Pueblos III</h1></header>
 
     <div class="container">
-        <div id="section-main" class="section active-section">
-            <button class="nav-btn" onclick="goTo('section-britain')">Britain</button>
+        <div id="section-main" class="section active">
+            <div class="nav-btn" onclick="goTo('section-britain')">Britain</div>
         </div>
 
         <div id="section-britain" class="section">
             <h2>Britain</h2>
-            <button class="nav-btn" onclick="goTo('section-century')">The Eighteenth Century</button>
+            <div class="nav-btn" onclick="goTo('section-century')">The Eighteenth Century</div>
             <button class="back-btn" onclick="goTo('section-main')">← Back</button>
         </div>
 
         <div id="section-century" class="section">
             <h2>The Eighteenth Century</h2>
-            <button class="nav-btn" onclick="goTo('section-political')">The Political World</button>
+            <div class="nav-btn" onclick="goTo('section-political')">The Political World</div>
             <button class="back-btn" onclick="goTo('section-britain')">← Back</button>
         </div>
 
         <div id="section-political" class="section">
             <div id="activity-1">
                 <h3>Step 1: The Timeline</h3>
-                <p>1. Tap a definition below.<br>2. Tap the correct white box.</p>
+                <p>1. Tap a definition.<br>2. Tap the correct year box.</p>
                 <div id="timeline-container"></div>
                 <div id="cards-container" style="border-top: 1px solid #eee; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center;"></div>
-                <button id="check-btn" class="nav-btn" style="background: var(--primary); color: white;">Check Answers</button>
+                <div id="check-btn" class="nav-btn" style="background: var(--primary); color: white;">Check Answers</div>
                 
                 <div id="unlock-msg" class="hidden">
-                    <button class="nav-btn" style="border-color: var(--success); color: var(--success);" onclick="showStep2()">Enter Minister's Office ➔</button>
+                    <div class="nav-btn" style="border-color: var(--success); color: var(--success);" onclick="showStep2()">Enter Minister's Office ➔</div>
                 </div>
             </div>
 
@@ -115,10 +117,10 @@
                 <div style="background: var(--wood); padding: 15px; border-radius: 10px; color: white;">
                     <h3>Step 2: Minister's Desk</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="def-card" style="color: black;" onclick="openGame('scotland')">📜 Act of Union</button>
-                        <button class="def-card" style="color: black;" onclick="openGame('enclosures')">🚜 Enclosures</button>
-                        <button class="def-card" style="color: black;" onclick="openGame('wilkes')">🗞️ Wilkes</button>
-                        <button class="def-card" style="color: black;" onclick="openGame('tea')">☕ Tea Export</button>
+                        <div class="def-card" onclick="openGame('scotland')">📜 Act of Union</div>
+                        <div class="def-card" onclick="openGame('enclosures')">🚜 Enclosures</div>
+                        <div class="def-card" onclick="openGame('wilkes')">🗞️ Wilkes</div>
+                        <div class="def-card" onclick="openGame('tea')">☕ Tea Export</div>
                     </div>
                 </div>
             </div>
@@ -133,23 +135,24 @@
     </div>
 
     <script>
-        // NAVEGACIÓN CORREGIDA
-        function goTo(sectionId) {
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(s => {
+        // NAVEGACIÓN REFORZADA
+        function goTo(id) {
+            // Ocultar todo lo que tenga clase 'section'
+            const all = document.querySelectorAll('.section');
+            all.forEach(s => {
                 s.style.display = 'none';
-                s.classList.remove('active-section');
+                s.classList.remove('active');
             });
             
-            const target = document.getElementById(sectionId);
+            // Mostrar la sección específica
+            const target = document.getElementById(id);
             if (target) {
                 target.style.display = 'block';
-                target.classList.add('active-section');
+                target.classList.add('active');
             }
             window.scrollTo(0,0);
         }
 
-        // DATOS DE LA LÍNEA DE TIEMPO
         const data = [
             {id:0, y:"1707", e:"Act of Union", d:"Scotland lost its parliament but gained access to England's trading empire."},
             {id:1, y:"18th C.", e:"The Enclosures", d:"Drove families off land to become workers for the Industrial Revolution."},
@@ -163,8 +166,7 @@
         function initTimeline() {
             const timeCont = document.getElementById('timeline-container');
             const cardCont = document.getElementById('cards-container');
-            timeCont.innerHTML = "";
-            cardCont.innerHTML = "";
+            if(!timeCont || !cardCont) return;
 
             data.forEach((item, index) => {
                 const spot = document.createElement('div');
@@ -201,8 +203,7 @@
             spots.forEach((s, index) => {
                 const card = s.querySelector('.def-card');
                 if(card && parseInt(card.dataset.id) === index) {
-                    card.classList.add('correct'); 
-                    win++;
+                    card.classList.add('correct'); win++;
                 } else if(card) {
                     card.classList.add('incorrect');
                     setTimeout(() => { 
@@ -218,7 +219,6 @@
             }
         };
 
-        // OBJETOS CORREGIDOS (Comillas cerradas correctamente)
         const issues = {
             scotland: { t:"Union with Scotland", d:"How will you persuade the Scots to join the Union?", o:[{n:"Equal Trade Right", c:true, r: "Correct! Access to the trading empire was the key."}, {n:"War", c:false, r: "Fail! You triggered a bloody war in the Highlands."}] },
             enclosures: { t:"Enclosure Acts", d:"Landowners want to enclose common lands. What is the consequence?", o:[{n:"Capital and Cheap Labour", c:true, r: "Correct! This funded the Industrial Revolution."}, {n:"Total Freedom for Farmers", c:false, r: "Fail! They lost their land and way of life."}] },
@@ -233,7 +233,7 @@
             const optCont = document.getElementById('m-options');
             optCont.innerHTML = "";
             is.o.forEach(o => {
-                const b = document.createElement('button');
+                const b = document.createElement('div');
                 b.className = 'nav-btn'; b.innerText = o.n;
                 b.onclick = () => {
                     document.getElementById('decision-modal').classList.add('hidden');
@@ -249,8 +249,8 @@
             document.getElementById('activity-2').classList.remove('hidden');
         }
 
-        // Iniciar línea de tiempo al cargar
-        initTimeline();
+        // Ejecutar al terminar de cargar el DOM
+        window.onload = initTimeline;
     </script>
 </body>
 </html>
