@@ -31,17 +31,15 @@
             box-sizing: border-box;
         }
 
-        /* Estilo de los botones principales */
         .nav-btn {
             display: block; width: 100%; padding: 20px; margin: 10px 0;
             font-size: 1.2rem; font-weight: bold; cursor: pointer;
             background: #ffffff; color: var(--primary); 
             border: 2px solid var(--primary); border-radius: 8px;
             text-decoration: none;
-            -webkit-appearance: none; /* Quita estilos de iOS */
+            -webkit-appearance: none;
         }
 
-        /* Feedback visual al tocar */
         .nav-btn:active {
             background: var(--primary) !important;
             color: white !important;
@@ -52,19 +50,21 @@
             margin-top: 20px; border-radius: 5px; font-weight: bold;
         }
 
-        /* Secciones */
         .section { display: none; width: 100%; }
         .active-section { display: block !important; }
 
-        /* Timeline */
         .timeline-spot {
             border: 2px dashed var(--primary); border-radius: 8px;
             min-height: 80px; padding: 10px; background: #fafafa; margin-bottom: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
+        
         .def-card {
             background: var(--parchment); border: 1px solid #d4a373;
             padding: 12px; margin: 5px; border-radius: 6px; font-size: 0.9rem;
+            cursor: pointer;
         }
+        
         .correct { background: var(--success) !important; color: white; }
         .incorrect { background: var(--accent) !important; color: white; }
 
@@ -115,10 +115,10 @@
                 <div style="background: var(--wood); padding: 15px; border-radius: 10px; color: white;">
                     <h3>Step 2: Minister's Desk</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="def-card" onclick="openGame('scotland')">📜 Act of Union</button>
-                        <button class="def-card" onclick="openGame('enclosures')">🚜 Enclosures</button>
-                        <button class="def-card" onclick="openGame('wilkes')">🗞️ Wilkes</button>
-                        <button class="def-card" onclick="openGame('tea')">☕ Tea Export</button>
+                        <button class="def-card" style="color: black;" onclick="openGame('scotland')">📜 Act of Union</button>
+                        <button class="def-card" style="color: black;" onclick="openGame('enclosures')">🚜 Enclosures</button>
+                        <button class="def-card" style="color: black;" onclick="openGame('wilkes')">🗞️ Wilkes</button>
+                        <button class="def-card" style="color: black;" onclick="openGame('tea')">☕ Tea Export</button>
                     </div>
                 </div>
             </div>
@@ -133,16 +133,14 @@
     </div>
 
     <script>
-        // NAVEGACIÓN UNIVERSAL (FUNCIONA EN CUALQUIER MÓVIL)
+        // NAVEGACIÓN CORREGIDA
         function goTo(sectionId) {
-            // Ocultamos todas con display none
-            const sections = document.getElementsByClassName('section');
-            for (let i = 0; i < sections.length; i++) {
-                sections[i].style.display = 'none';
-                sections[i].classList.remove('active-section');
-            }
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('active-section');
+            });
             
-            // Mostramos la elegida
             const target = document.getElementById(sectionId);
             if (target) {
                 target.style.display = 'block';
@@ -151,7 +149,7 @@
             window.scrollTo(0,0);
         }
 
-        // LÓGICA DE ACTIVIDADES
+        // DATOS DE LA LÍNEA DE TIEMPO
         const data = [
             {id:0, y:"1707", e:"Act of Union", d:"Scotland lost its parliament but gained access to England's trading empire."},
             {id:1, y:"18th C.", e:"The Enclosures", d:"Drove families off land to become workers for the Industrial Revolution."},
@@ -162,11 +160,13 @@
 
         let picked = null;
 
-        function start() {
+        function initTimeline() {
             const timeCont = document.getElementById('timeline-container');
             const cardCont = document.getElementById('cards-container');
+            timeCont.innerHTML = "";
+            cardCont.innerHTML = "";
 
-            data.forEach(item => {
+            data.forEach((item, index) => {
                 const spot = document.createElement('div');
                 spot.className = 'timeline-spot';
                 spot.innerHTML = `<strong>${item.y} - ${item.e}</strong>`;
@@ -180,7 +180,7 @@
                 timeCont.appendChild(spot);
             });
 
-            data.sort(() => Math.random() - 0.5).forEach(item => {
+            [...data].sort(() => Math.random() - 0.5).forEach(item => {
                 const c = document.createElement('div');
                 c.className = 'def-card';
                 c.innerText = item.d;
@@ -197,30 +197,33 @@
 
         document.getElementById('check-btn').onclick = function() {
             let win = 0;
-            const spots = document.getElementsByClassName('timeline-spot');
-            for(let s of spots) {
+            const spots = document.querySelectorAll('.timeline-spot');
+            spots.forEach((s, index) => {
                 const card = s.querySelector('.def-card');
-                if(card && card.dataset.id == Array.from(spots).indexOf(s)) {
-                    card.classList.add('correct'); win++;
+                if(card && parseInt(card.dataset.id) === index) {
+                    card.classList.add('correct'); 
+                    win++;
                 } else if(card) {
                     card.classList.add('incorrect');
                     setTimeout(() => { 
                         document.getElementById('cards-container').appendChild(card);
                         card.classList.remove('incorrect');
+                        card.style.background = "var(--parchment)";
                     }, 800);
                 }
-            }
+            });
             if(win === 5) {
                 document.getElementById('unlock-msg').classList.remove('hidden');
                 this.classList.add('hidden');
             }
         };
 
+        // OBJETOS CORREGIDOS (Comillas cerradas correctamente)
         const issues = {
-            scotland: { t:"Union with Scotland", d:"How will you persuade the Scots to join the Union?", o:[{n:"Equal Trade Right", c:true, r: "Correct! Access to the trading empire was the key.}, {n:"War", c:false, r: "Fail! You triggered a bloody war in the Highlands."}] },
-            enclosures: { t:"Enclosure Acts", d:"Landowners want to enclose common lands. What is the consequence?", o:[{n:"Capital and Cheap Labour", c:true, r: "Correct! This funded the Industrial Revolution.}, {n:"Total Freedom for Farmers", c:false, r: "Fail! They lost their land and way of life."}] },
-            wilkes: { t:"Wilkes and Liberty", d:"MP Wilkes insulted the King. What did the trial prove?", o:[{n:"Individual over State", c:true, r: "Correct! Freedom became a political priority.}, {n:"King is Supreme", c:false, r: "Fail! The jury ruled against the government.}] },
-            tea: { t:"American Taxes", d:"The colonists are angry about the tea tax. Why?", o:[{n:"No Representation", c:true, r: "Correct! 'No taxation without representation'.}, {n:"Bad Quality Tea", c:false, r: "Fail! It was a political issue, not a culinary one.}] }
+            scotland: { t:"Union with Scotland", d:"How will you persuade the Scots to join the Union?", o:[{n:"Equal Trade Right", c:true, r: "Correct! Access to the trading empire was the key."}, {n:"War", c:false, r: "Fail! You triggered a bloody war in the Highlands."}] },
+            enclosures: { t:"Enclosure Acts", d:"Landowners want to enclose common lands. What is the consequence?", o:[{n:"Capital and Cheap Labour", c:true, r: "Correct! This funded the Industrial Revolution."}, {n:"Total Freedom for Farmers", c:false, r: "Fail! They lost their land and way of life."}] },
+            wilkes: { t:"Wilkes and Liberty", d:"MP Wilkes insulted the King. What did the trial prove?", o:[{n:"Individual over State", c:true, r: "Correct! Freedom became a political priority."}, {n:"King is Supreme", c:false, r: "Fail! The jury ruled against the government."}] },
+            tea: { t:"American Taxes", d:"The colonists are angry about the tea tax. Why?", o:[{n:"No Representation", c:true, r: "Correct! No taxation without representation."}, {n:"Bad Quality Tea", c:false, r: "Fail! It was a political issue, not a culinary one."}] }
         };
 
         function openGame(k) {
@@ -234,8 +237,7 @@
                 b.className = 'nav-btn'; b.innerText = o.n;
                 b.onclick = () => {
                     document.getElementById('decision-modal').classList.add('hidden');
-                    if(o.c) alert("Correct!");
-                    else alert("Failed! Government Collapsed.");
+                    alert(o.r);
                 };
                 optCont.appendChild(b);
             });
@@ -247,7 +249,8 @@
             document.getElementById('activity-2').classList.remove('hidden');
         }
 
-        start();
+        // Iniciar línea de tiempo al cargar
+        initTimeline();
     </script>
 </body>
 </html>
